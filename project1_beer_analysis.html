@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Michael Olheiser, Lijju Mathew, Andre Mauldin," />
+
+
+<title>Exploratory Data Analysis of Beers and Breweries</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<script src="site_libs/htmlwidgets-1.5.1/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.9.2.1/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-1.52.2/plotly-latest.min.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">My Website</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="project1_beer_analysis.html">Beer</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Exploratory Data Analysis of Beers and Breweries</h1>
+<h4 class="author">Michael Olheiser, Lijju Mathew, Andre Mauldin,</h4>
+<h4 class="date">7/04/2020</h4>
+
+</div>
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>We will be exploring a data set of various beers and breweries provided by Anheuser Busch to assess the relationship between International Bitterness Units (IBU) and Alcohol By Volume (ABV) and how they relate to styles of beer. We will also seek to share other insights from this data related to IBU and ABV such as which beers have the highest IBU and ABV.</p>
+<pre class="r"><code># read data
+beer&lt;-read.csv(&quot;Beers.csv&quot;, stringsAsFactors = FALSE)
+breweries&lt;-read.csv(&quot;Breweries.csv&quot;, stringsAsFactors = FALSE)</code></pre>
+</div>
+<div id="breweries-by-state" class="section level2">
+<h2>Breweries by State</h2>
+<p>The top three states with the most breweries in our data set are California, Colorado, and Michigan. It is not surprising for California to top this list due to their population but Colorado and Michigan have considerably lower populations yet still maintain a higher number of breweries indicating that population is not the only factor that determines the number of breweries in a state. It’s likely that certain cultural and economic aspects of the population influence the number of breweries in that state as well. Furthermore, the map of the US shows that Breweries do not dominate any particular region of the US.</p>
+<pre class="r"><code>breweries$State &lt;- trimws(breweries$State)
+
+# use lat/lon data from us_map package to estomate center of state
+coordinates&lt;-us_map(regions = &quot;states&quot;)
+coordinates = coordinates %&gt;% dplyr::group_by(abbr) %&gt;%
+  dplyr::summarize(Lat = mean(y), Lon = mean(x))
+
+#sum breweries by state. &quot;fips&quot; is a key for us states 
+state_breweries&lt;-breweries %&gt;% dplyr::group_by(State) %&gt;%
+  dplyr::summarise(Count_of_Breweries = n()) %&gt;%
+  dplyr::mutate(fips = fips(State)) %&gt;%
+  inner_join(coordinates, by=c(&quot;State&quot; = &quot;abbr&quot;))
+
+#plot us map 
+plot_usmap(data=state_breweries, values=&quot;Count_of_Breweries&quot;, color=&quot;black&quot;, labels=TRUE) +
+  scale_fill_continuous(low=&quot;white&quot;, high=&quot;red&quot;, name=&quot;Number of Breweries&quot;) +
+  theme(legend.position = &quot;right&quot;) +
+  ggtitle(&quot;Breweries in the United States&quot;)</code></pre>
+<p><img src="project1_beer_analysis_files/figure-html/map-1.png" width="672" /></p>
+<pre class="r"><code># bar chart of states
+breweries %&gt;% dplyr::group_by(State) %&gt;% 
+  dplyr::summarize(count = n()) %&gt;% 
+  ggplot(aes(x=reorder(State, count), y = count)) +
+  geom_bar(stat=&quot;identity&quot;, width=.5, fill=&quot;orange&quot;) +
+  labs(title=&quot;Number of Breweries Per State&quot;,
+     x = &quot;State&quot;,
+     y = &quot;Brewereis Count&quot;) +     
+     theme(axis.text.x = element_text(angle=65, vjust=0.6))</code></pre>
+<p><img src="project1_beer_analysis_files/figure-html/map-2.png" width="672" /></p>
+</div>
+<div id="handling-missing-values" class="section level2">
+<h2>Handling Missing Values</h2>
+<p>IBU are not regularly reported for beers indicated in the plot below. Very few measurements of Alcohol by Volume are missing but missing IBU accounts for about 40% of all beers in this data set.</p>
+<pre class="r"><code>#Force any empty strings to become NA. 
+#Style is the only character vector with empty strings
+beer_merged$Style[beer_merged$Style==&quot;&quot;]=NA
+
+#Create data frame for missing values plot
+missing_values2 &lt;- beer_merged %&gt;%
+  gather(key = &quot;key&quot;, value = &quot;val&quot;) %&gt;%
+  dplyr::mutate(isna = is.na(val)) %&gt;%
+  dplyr::group_by(key) %&gt;%
+  dplyr::mutate(total = n()) %&gt;%
+  dplyr::group_by(key, total, isna)%&gt;%
+  dplyr::summarise(num.isna = n())%&gt;%
+  dplyr::mutate(pct = num.isna / total * 100)
+
+levels &lt;- (missing_values2 %&gt;% filter(isna == T) %&gt;% arrange(desc(pct)))$key
+
+#plot percentage of missing values
+percentage.plot &lt;- missing_values2 %&gt;%
+      ggplot() + geom_bar(aes(x = reorder(key, desc(pct)), y = pct, fill=isna), stat = &#39;identity&#39;, alpha=1) +
+      scale_x_discrete(limits = levels) +
+      scale_fill_manual(name = &quot;&quot;, values = c(&#39;steelblue&#39;, &#39;tomato3&#39;), labels = c(&quot;Present&quot;, &quot;Missing&quot;)) +
+      coord_flip() + 
+      labs(title = &quot;Percentage of missing values&quot;, x = &#39;Variable&#39;, y = &quot;% of missing values&quot;)
+percentage.plot</code></pre>
+<p><img src="project1_beer_analysis_files/figure-html/missing-1.png" width="672" /></p>
+<pre class="r"><code>#Create table for missing values
+missing_values&lt;-sort(sapply(beer_merged, function(x) sum(is.na(x))), decreasing = T)
+missing_values %&gt;% kable(&quot;html&quot;) %&gt;% kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+x
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+IBU
+</td>
+<td style="text-align:right;">
+1005
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ABV
+</td>
+<td style="text-align:right;">
+62
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Style
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+beer_name
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Beer_ID
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brewery_id
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ounces
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+brewery_name
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+City
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+State
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+<p>The missing values for IBU and ABV do not necessarily represent a zero value. We will replace missing IBU and ABV with the average IBU and average ABV for their respective Style. In the case of Ciders, we have 37 beers in our data set with no IBUs so we will assume these IBUs are actually zero. For the eight remaining styles that have no IBUs reported (Mead, Rauchbier, Kristalweizen, Flanders Red Ale, Shandy, American Malt Liquor, Braggot, Low Alcohol Beer), its unclear if these IBUs are actually non-zero so we will omit these which results in dropping only 15 beers from our data set.</p>
+<pre class="r"><code>#drop beers with no style
+beer_merged &lt;- beer_merged[!is.na(beer_merged$Style),]
+
+replaceNAs&lt;-beer_merged %&gt;%
+  dplyr::select(Style, ABV, IBU) %&gt;%
+  dplyr::group_by(Style) %&gt;%
+  dplyr::summarise(meanABV=mean(ABV, na.rm=TRUE), meanIBU=mean(IBU, na.rm=TRUE))
+
+#replace missing ABV with mean ABV per Style
+beer_merged&lt;-left_join(beer_merged, replaceNAs, by=&quot;Style&quot;)
+beer_merged$ABV[is.na(beer_merged$ABV)]=beer_merged$meanABV[is.na(beer_merged$ABV)]
+
+#replace missing IBU with mean IBU per Style
+beer_merged$IBU[is.na(beer_merged$IBU)]=beer_merged$meanIBU[is.na(beer_merged$IBU)]
+
+#For Cider IBU=0
+beer_merged$IBU[beer_merged$Style==&quot;Cider&quot;]=0
+
+#Drop the remaining styles with no IBUs listed for any beers.
+beer_merged&lt;- beer_merged[!is.na(beer_merged$IBU),]</code></pre>
+</div>
+<div id="median-abv-and-ibu-by-state" class="section level2">
+<h2>Median ABV and IBU by State</h2>
+<p>The state with the highest median ABV is Kentucky while the highest IBU is Delaware. In general, the median IBU does not change considerably across States. A couple exceptions to this are New Jersey And Utah which seem to drop off significantly in ABV at the end of the plot. Median IBU has a much larger range across States than ABV. States like Delaware, West Virginia, and Minnesota tend to prefer more bitter beers while states like New Hampshire and Wyoming prefer less bitter. There is no apparent geographical pattern to explain these differences. Further data gathering would need to be done for each state to determine the reason for these differences.</p>
+<pre class="r"><code>medians = data.frame(beer_merged %&gt;% dplyr::group_by(State) %&gt;%
+dplyr::summarize(median_ABV = median(ABV), median_IBU = median(IBU)))
+
+medABVPlot = medians %&gt;% ggplot(aes(x = reorder(State,-median_ABV), y = median_ABV, fill = State )) + 
+  geom_col() + 
+  ggtitle(&quot;Median Alcohol Content of Beers by State&quot;) +
+  xlab(&quot;State&quot;) +
+  ylab(&quot;Median ABV&quot;) +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6))
+
+medIBUPlot = medians %&gt;% ggplot(aes(x = reorder(State,-median_IBU), y = median_IBU, fill = State)) + 
+  geom_col() + 
+  ggtitle(&quot;Median Bitterness of Beers by State&quot;) +
+  xlab(&quot;State&quot;) +
+  ylab(&quot;Median IBU&quot;) +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6))
+
+ggplotly(medABVPlot)</code></pre>
+<div id="htmlwidget-6a5d96877f8527c77489" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-6a5d96877f8527c77489">{"x":{"data":[{"orientation":"v","width":0.899999999999999,"base":0,"x":[25],"y":[0.056],"text":"reorder(State, -median_ABV): AK<br />median_ABV: 0.05600000<br />State: AK","type":"bar","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"AK","legendgroup":"AK","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0,"x":[6],"y":[0.06],"text":"reorder(State, -median_ABV): AL<br />median_ABV: 0.06000000<br />State: AL","type":"bar","marker":{"autocolorscale":false,"color":"rgba(243,123,89,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"AL","legendgroup":"AL","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[43],"y":[0.052],"text":"reorder(State, -median_ABV): AR<br />median_ABV: 0.05200000<br />State: AR","type":"bar","marker":{"autocolorscale":false,"color":"rgba(238,128,66,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"AR","legendgroup":"AR","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[24],"y":[0.056228],"text":"reorder(State, -median_ABV): AZ<br />median_ABV: 0.05622800<br />State: AZ","type":"bar","marker":{"autocolorscale":false,"color":"rgba(231,133,30,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"AZ","legendgroup":"AZ","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[14],"y":[0.058],"text":"reorder(State, -median_ABV): CA<br />median_ABV: 0.05800000<br />State: CA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(224,138,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"CA","legendgroup":"CA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0,"x":[7],"y":[0.06],"text":"reorder(State, -median_ABV): CO<br />median_ABV: 0.06000000<br />State: CO","type":"bar","marker":{"autocolorscale":false,"color":"rgba(217,143,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"CO","legendgroup":"CO","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[8],"y":[0.06],"text":"reorder(State, -median_ABV): CT<br />median_ABV: 0.06000000<br />State: CT","type":"bar","marker":{"autocolorscale":false,"color":"rgba(208,148,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"CT","legendgroup":"CT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0,"x":[2],"y":[0.0625],"text":"reorder(State, -median_ABV): DC<br />median_ABV: 0.06250000<br />State: DC","type":"bar","marker":{"autocolorscale":false,"color":"rgba(199,152,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"DC","legendgroup":"DC","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[11],"y":[0.0597637889688249],"text":"reorder(State, -median_ABV): DE<br />median_ABV: 0.05976379<br />State: DE","type":"bar","marker":{"autocolorscale":false,"color":"rgba(189,157,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"DE","legendgroup":"DE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[28],"y":[0.0555],"text":"reorder(State, -median_ABV): FL<br />median_ABV: 0.05550000<br />State: FL","type":"bar","marker":{"autocolorscale":false,"color":"rgba(178,161,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"FL","legendgroup":"FL","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000002,"base":0,"x":[32],"y":[0.055],"text":"reorder(State, -median_ABV): GA<br />median_ABV: 0.05500000<br />State: GA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(165,165,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"GA","legendgroup":"GA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[40],"y":[0.054],"text":"reorder(State, -median_ABV): HI<br />median_ABV: 0.05400000<br />State: HI","type":"bar","marker":{"autocolorscale":false,"color":"rgba(152,168,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"HI","legendgroup":"HI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[29],"y":[0.0555],"text":"reorder(State, -median_ABV): IA<br />median_ABV: 0.05550000<br />State: IA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(137,172,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"IA","legendgroup":"IA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[22],"y":[0.0565],"text":"reorder(State, -median_ABV): ID<br />median_ABV: 0.05650000<br />State: ID","type":"bar","marker":{"autocolorscale":false,"color":"rgba(119,175,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"ID","legendgroup":"ID","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[15],"y":[0.058],"text":"reorder(State, -median_ABV): IL<br />median_ABV: 0.05800000<br />State: IL","type":"bar","marker":{"autocolorscale":false,"color":"rgba(98,178,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"IL","legendgroup":"IL","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[12],"y":[0.0596],"text":"reorder(State, -median_ABV): IN<br />median_ABV: 0.05960000<br />State: IN","type":"bar","marker":{"autocolorscale":false,"color":"rgba(69,181,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"IN","legendgroup":"IN","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[47],"y":[0.05],"text":"reorder(State, -median_ABV): KS<br />median_ABV: 0.05000000<br />State: KS","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,183,9,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"KS","legendgroup":"KS","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0,"x":[1],"y":[0.0645275779376499],"text":"reorder(State, -median_ABV): KY<br />median_ABV: 0.06452758<br />State: KY","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,186,56,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"KY","legendgroup":"KY","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[44],"y":[0.052],"text":"reorder(State, -median_ABV): LA<br />median_ABV: 0.05200000<br />State: LA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,188,81,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"LA","legendgroup":"LA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[41],"y":[0.054],"text":"reorder(State, -median_ABV): MA<br />median_ABV: 0.05400000<br />State: MA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,189,101,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"MA","legendgroup":"MA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[16],"y":[0.058],"text":"reorder(State, -median_ABV): MD<br />median_ABV: 0.05800000<br />State: MD","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,191,119,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"MD","legendgroup":"MD","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[46],"y":[0.051],"text":"reorder(State, -median_ABV): ME<br />median_ABV: 0.05100000<br />State: ME","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,192,135,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"ME","legendgroup":"ME","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0,"x":[5],"y":[0.0605],"text":"reorder(State, -median_ABV): MI<br />median_ABV: 0.06050000<br />State: MI","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,192,150,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"MI","legendgroup":"MI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[26],"y":[0.056],"text":"reorder(State, -median_ABV): MN<br />median_ABV: 0.05600000<br />State: MN","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,193,164,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"MN","legendgroup":"MN","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[42],"y":[0.0524285714285714],"text":"reorder(State, -median_ABV): MO<br />median_ABV: 0.05242857<br />State: MO","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,192,178,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"MO","legendgroup":"MO","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[17],"y":[0.058],"text":"reorder(State, -median_ABV): MS<br />median_ABV: 0.05800000<br />State: MS","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,192,190,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"MS","legendgroup":"MS","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[39],"y":[0.0545],"text":"reorder(State, -median_ABV): MT<br />median_ABV: 0.05450000<br />State: MT","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,190,202,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"MT","legendgroup":"MT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[20],"y":[0.057],"text":"reorder(State, -median_ABV): NC<br />median_ABV: 0.05700000<br />State: NC","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,188,214,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"NC","legendgroup":"NC","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[48],"y":[0.05],"text":"reorder(State, -median_ABV): ND<br />median_ABV: 0.05000000<br />State: ND","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,186,224,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"ND","legendgroup":"ND","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[30],"y":[0.0555],"text":"reorder(State, -median_ABV): NE<br />median_ABV: 0.05550000<br />State: NE","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,183,233,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"NE","legendgroup":"NE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[33],"y":[0.055],"text":"reorder(State, -median_ABV): NH<br />median_ABV: 0.05500000<br />State: NH","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,179,242,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"NH","legendgroup":"NH","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[50],"y":[0.046],"text":"reorder(State, -median_ABV): NJ<br />median_ABV: 0.04600000<br />State: NJ","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,174,249,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"NJ","legendgroup":"NJ","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0,"x":[4],"y":[0.061],"text":"reorder(State, -median_ABV): NM<br />median_ABV: 0.06100000<br />State: NM","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,169,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"NM","legendgroup":"NM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[13],"y":[0.05925],"text":"reorder(State, -median_ABV): NV<br />median_ABV: 0.05925000<br />State: NV","type":"bar","marker":{"autocolorscale":false,"color":"rgba(41,163,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"NV","legendgroup":"NV","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[34],"y":[0.055],"text":"reorder(State, -median_ABV): NY<br />median_ABV: 0.05500000<br />State: NY","type":"bar","marker":{"autocolorscale":false,"color":"rgba(97,156,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"NY","legendgroup":"NY","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[18],"y":[0.058],"text":"reorder(State, -median_ABV): OH<br />median_ABV: 0.05800000<br />State: OH","type":"bar","marker":{"autocolorscale":false,"color":"rgba(130,149,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"OH","legendgroup":"OH","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[9],"y":[0.06],"text":"reorder(State, -median_ABV): OK<br />median_ABV: 0.06000000<br />State: OK","type":"bar","marker":{"autocolorscale":false,"color":"rgba(156,141,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"OK","legendgroup":"OK","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[27],"y":[0.056],"text":"reorder(State, -median_ABV): OR<br />median_ABV: 0.05600000<br />State: OR","type":"bar","marker":{"autocolorscale":false,"color":"rgba(177,134,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"OR","legendgroup":"OR","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[19],"y":[0.057456],"text":"reorder(State, -median_ABV): PA<br />median_ABV: 0.05745600<br />State: PA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(195,126,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"PA","legendgroup":"PA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[35],"y":[0.055],"text":"reorder(State, -median_ABV): RI<br />median_ABV: 0.05500000<br />State: RI","type":"bar","marker":{"autocolorscale":false,"color":"rgba(210,119,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"RI","legendgroup":"RI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[36],"y":[0.055],"text":"reorder(State, -median_ABV): SC<br />median_ABV: 0.05500000<br />State: SC","type":"bar","marker":{"autocolorscale":false,"color":"rgba(223,112,249,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"SC","legendgroup":"SC","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[10],"y":[0.06],"text":"reorder(State, -median_ABV): SD<br />median_ABV: 0.06000000<br />State: SD","type":"bar","marker":{"autocolorscale":false,"color":"rgba(233,106,241,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"SD","legendgroup":"SD","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[21],"y":[0.057],"text":"reorder(State, -median_ABV): TN<br />median_ABV: 0.05700000<br />State: TN","type":"bar","marker":{"autocolorscale":false,"color":"rgba(241,102,232,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"TN","legendgroup":"TN","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[37],"y":[0.055],"text":"reorder(State, -median_ABV): TX<br />median_ABV: 0.05500000<br />State: TX","type":"bar","marker":{"autocolorscale":false,"color":"rgba(248,99,222,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"TX","legendgroup":"TX","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[51],"y":[0.04],"text":"reorder(State, -median_ABV): UT<br />median_ABV: 0.04000000<br />State: UT","type":"bar","marker":{"autocolorscale":false,"color":"rgba(252,97,211,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"UT","legendgroup":"UT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[23],"y":[0.0565],"text":"reorder(State, -median_ABV): VA<br />median_ABV: 0.05650000<br />State: VA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(255,97,199,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"VA","legendgroup":"VA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[38],"y":[0.055],"text":"reorder(State, -median_ABV): VT<br />median_ABV: 0.05500000<br />State: VT","type":"bar","marker":{"autocolorscale":false,"color":"rgba(255,98,186,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"VT","legendgroup":"VT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[31],"y":[0.0555],"text":"reorder(State, -median_ABV): WA<br />median_ABV: 0.05550000<br />State: WA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(255,101,173,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"WA","legendgroup":"WA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[45],"y":[0.052],"text":"reorder(State, -median_ABV): WI<br />median_ABV: 0.05200000<br />State: WI","type":"bar","marker":{"autocolorscale":false,"color":"rgba(255,104,158,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"WI","legendgroup":"WI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0,"x":[3],"y":[0.062],"text":"reorder(State, -median_ABV): WV<br />median_ABV: 0.06200000<br />State: WV","type":"bar","marker":{"autocolorscale":false,"color":"rgba(255,109,143,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"WV","legendgroup":"WV","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[49],"y":[0.05],"text":"reorder(State, -median_ABV): WY<br />median_ABV: 0.05000000<br />State: WY","type":"bar","marker":{"autocolorscale":false,"color":"rgba(252,113,127,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"WY","legendgroup":"WY","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":43.7625570776256,"r":7.30593607305936,"b":44.8791666510281,"l":48.9497716894977},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"title":{"text":"Median Alcohol Content of Beers by State","font":{"color":"rgba(0,0,0,1)","family":"","size":17.5342465753425},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.4,51.6],"tickmode":"array","ticktext":["KY","DC","WV","NM","MI","AL","CO","CT","OK","SD","DE","IN","NV","CA","IL","MD","MS","OH","PA","NC","TN","ID","VA","AZ","AK","MN","OR","FL","IA","NE","WA","GA","NH","NY","RI","SC","TX","VT","MT","HI","MA","MO","AR","LA","WI","ME","KS","ND","WY","NJ","UT"],"tickvals":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51],"categoryorder":"array","categoryarray":["KY","DC","WV","NM","MI","AL","CO","CT","OK","SD","DE","IN","NV","CA","IL","MD","MS","OH","PA","NC","TN","ID","VA","AZ","AK","MN","OR","FL","IA","NE","WA","GA","NH","NY","RI","SC","TX","VT","MT","HI","MA","MO","AR","LA","WI","ME","KS","ND","WY","NJ","UT"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-65,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"State","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.00322637889688249,0.0677539568345324],"tickmode":"array","ticktext":["0.00","0.02","0.04","0.06"],"tickvals":[0,0.02,0.04,0.06],"categoryorder":"array","categoryarray":["0.00","0.02","0.04","0.06"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"Median ABV","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"y":0.913385826771654},"annotations":[{"text":"State","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"6d30171dc641":{"x":{},"y":{},"fill":{},"type":"bar"}},"cur_data":"6d30171dc641","visdat":{"6d30171dc641":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>ggplotly(medIBUPlot)</code></pre>
+<div id="htmlwidget-5a8d9bfa2852251d9b6d" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-5a8d9bfa2852251d9b6d">{"x":{"data":[{"orientation":"v","width":0.899999999999999,"base":0,"x":[27],"y":[33.8125],"text":"reorder(State, -median_IBU): AK<br />median_IBU: 33.81250<br />State: AK","type":"bar","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"AK","legendgroup":"AK","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[11],"y":[39.5],"text":"reorder(State, -median_IBU): AL<br />median_IBU: 39.50000<br />State: AL","type":"bar","marker":{"autocolorscale":false,"color":"rgba(243,123,89,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"AL","legendgroup":"AL","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[14],"y":[36.2987012987013],"text":"reorder(State, -median_IBU): AR<br />median_IBU: 36.29870<br />State: AR","type":"bar","marker":{"autocolorscale":false,"color":"rgba(238,128,66,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"AR","legendgroup":"AR","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[48],"y":[22.552380952381],"text":"reorder(State, -median_IBU): AZ<br />median_IBU: 22.55238<br />State: AZ","type":"bar","marker":{"autocolorscale":false,"color":"rgba(231,133,30,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"AZ","legendgroup":"AZ","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[8],"y":[40],"text":"reorder(State, -median_IBU): CA<br />median_IBU: 40.00000<br />State: CA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(224,138,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"CA","legendgroup":"CA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[15],"y":[36.2987012987013],"text":"reorder(State, -median_IBU): CO<br />median_IBU: 36.29870<br />State: CO","type":"bar","marker":{"autocolorscale":false,"color":"rgba(217,143,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"CO","legendgroup":"CO","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[16],"y":[36.2987012987013],"text":"reorder(State, -median_IBU): CT<br />median_IBU: 36.29870<br />State: CT","type":"bar","marker":{"autocolorscale":false,"color":"rgba(208,148,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"CT","legendgroup":"CT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[40],"y":[28.0769230769231],"text":"reorder(State, -median_IBU): DC<br />median_IBU: 28.07692<br />State: DC","type":"bar","marker":{"autocolorscale":false,"color":"rgba(199,152,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"DC","legendgroup":"DC","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0,"x":[1],"y":[59.8172757475083],"text":"reorder(State, -median_IBU): DE<br />median_IBU: 59.81728<br />State: DE","type":"bar","marker":{"autocolorscale":false,"color":"rgba(189,157,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"DE","legendgroup":"DE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[19],"y":[35.6493506493507],"text":"reorder(State, -median_IBU): FL<br />median_IBU: 35.64935<br />State: FL","type":"bar","marker":{"autocolorscale":false,"color":"rgba(178,161,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"FL","legendgroup":"FL","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[13],"y":[38.5],"text":"reorder(State, -median_IBU): GA<br />median_IBU: 38.50000<br />State: GA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(165,165,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"GA","legendgroup":"GA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[44],"y":[25.5],"text":"reorder(State, -median_IBU): HI<br />median_IBU: 25.50000<br />State: HI","type":"bar","marker":{"autocolorscale":false,"color":"rgba(152,168,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"HI","legendgroup":"HI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[45],"y":[25],"text":"reorder(State, -median_IBU): IA<br />median_IBU: 25.00000<br />State: IA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(137,172,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"IA","legendgroup":"IA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[28],"y":[33.5],"text":"reorder(State, -median_IBU): ID<br />median_IBU: 33.50000<br />State: ID","type":"bar","marker":{"autocolorscale":false,"color":"rgba(119,175,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"ID","legendgroup":"ID","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0,"x":[6],"y":[41.3125],"text":"reorder(State, -median_IBU): IL<br />median_IBU: 41.31250<br />State: IL","type":"bar","marker":{"autocolorscale":false,"color":"rgba(98,178,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"IL","legendgroup":"IL","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000002,"base":0,"x":[32],"y":[31.9230769230769],"text":"reorder(State, -median_IBU): IN<br />median_IBU: 31.92308<br />State: IN","type":"bar","marker":{"autocolorscale":false,"color":"rgba(69,181,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"IN","legendgroup":"IN","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[49],"y":[22],"text":"reorder(State, -median_IBU): KS<br />median_IBU: 22.00000<br />State: KS","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,183,9,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"KS","legendgroup":"KS","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[33],"y":[31.9230769230769],"text":"reorder(State, -median_IBU): KY<br />median_IBU: 31.92308<br />State: KY","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,186,56,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"KY","legendgroup":"KY","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[41],"y":[28],"text":"reorder(State, -median_IBU): LA<br />median_IBU: 28.00000<br />State: LA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,188,81,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"LA","legendgroup":"LA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[36],"y":[30],"text":"reorder(State, -median_IBU): MA<br />median_IBU: 30.00000<br />State: MA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,189,101,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"MA","legendgroup":"MA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[37],"y":[30],"text":"reorder(State, -median_IBU): MD<br />median_IBU: 30.00000<br />State: MD","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,191,119,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"MD","legendgroup":"MD","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[12],"y":[38.6666666666667],"text":"reorder(State, -median_IBU): ME<br />median_IBU: 38.66667<br />State: ME","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,192,135,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"ME","legendgroup":"ME","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[39],"y":[28.3913043478261],"text":"reorder(State, -median_IBU): MI<br />median_IBU: 28.39130<br />State: MI","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,192,150,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"MI","legendgroup":"MI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0,"x":[3],"y":[45],"text":"reorder(State, -median_IBU): MN<br />median_IBU: 45.00000<br />State: MN","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,193,164,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"MN","legendgroup":"MN","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[42],"y":[27.375],"text":"reorder(State, -median_IBU): MO<br />median_IBU: 27.37500<br />State: MO","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,192,178,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"MO","legendgroup":"MO","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0,"x":[4],"y":[45],"text":"reorder(State, -median_IBU): MS<br />median_IBU: 45.00000<br />State: MS","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,192,190,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"MS","legendgroup":"MS","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[21],"y":[35],"text":"reorder(State, -median_IBU): MT<br />median_IBU: 35.00000<br />State: MT","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,190,202,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"MT","legendgroup":"MT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[34],"y":[31],"text":"reorder(State, -median_IBU): NC<br />median_IBU: 31.00000<br />State: NC","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,188,214,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"NC","legendgroup":"NC","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[31],"y":[32],"text":"reorder(State, -median_IBU): ND<br />median_IBU: 32.00000<br />State: ND","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,186,224,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"ND","legendgroup":"ND","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[17],"y":[36.2987012987013],"text":"reorder(State, -median_IBU): NE<br />median_IBU: 36.29870<br />State: NE","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,183,233,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"NE","legendgroup":"NE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[51],"y":[19.1],"text":"reorder(State, -median_IBU): NH<br />median_IBU: 19.10000<br />State: NH","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,179,242,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"NH","legendgroup":"NH","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[23],"y":[34.5],"text":"reorder(State, -median_IBU): NJ<br />median_IBU: 34.50000<br />State: NJ","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,174,249,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"NJ","legendgroup":"NJ","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[25],"y":[34.1764705882353],"text":"reorder(State, -median_IBU): NM<br />median_IBU: 34.17647<br />State: NM","type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,169,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"NM","legendgroup":"NM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[9],"y":[40],"text":"reorder(State, -median_IBU): NV<br />median_IBU: 40.00000<br />State: NV","type":"bar","marker":{"autocolorscale":false,"color":"rgba(41,163,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"NV","legendgroup":"NV","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[10],"y":[40],"text":"reorder(State, -median_IBU): NY<br />median_IBU: 40.00000<br />State: NY","type":"bar","marker":{"autocolorscale":false,"color":"rgba(97,156,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"NY","legendgroup":"NY","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[18],"y":[36.2987012987013],"text":"reorder(State, -median_IBU): OH<br />median_IBU: 36.29870<br />State: OH","type":"bar","marker":{"autocolorscale":false,"color":"rgba(130,149,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"OH","legendgroup":"OH","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[43],"y":[26.75],"text":"reorder(State, -median_IBU): OK<br />median_IBU: 26.75000<br />State: OK","type":"bar","marker":{"autocolorscale":false,"color":"rgba(156,141,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"OK","legendgroup":"OK","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[22],"y":[35],"text":"reorder(State, -median_IBU): OR<br />median_IBU: 35.00000<br />State: OR","type":"bar","marker":{"autocolorscale":false,"color":"rgba(177,134,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"OR","legendgroup":"OR","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[35],"y":[30.5],"text":"reorder(State, -median_IBU): PA<br />median_IBU: 30.50000<br />State: PA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(195,126,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"PA","legendgroup":"PA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[46],"y":[24],"text":"reorder(State, -median_IBU): RI<br />median_IBU: 24.00000<br />State: RI","type":"bar","marker":{"autocolorscale":false,"color":"rgba(210,119,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"RI","legendgroup":"RI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[30],"y":[32.5],"text":"reorder(State, -median_IBU): SC<br />median_IBU: 32.50000<br />State: SC","type":"bar","marker":{"autocolorscale":false,"color":"rgba(223,112,249,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"SC","legendgroup":"SC","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[38],"y":[29.8947368421053],"text":"reorder(State, -median_IBU): SD<br />median_IBU: 29.89474<br />State: SD","type":"bar","marker":{"autocolorscale":false,"color":"rgba(233,106,241,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"SD","legendgroup":"SD","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[24],"y":[34.5],"text":"reorder(State, -median_IBU): TN<br />median_IBU: 34.50000<br />State: TN","type":"bar","marker":{"autocolorscale":false,"color":"rgba(241,102,232,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"TN","legendgroup":"TN","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[29],"y":[33.40625],"text":"reorder(State, -median_IBU): TX<br />median_IBU: 33.40625<br />State: TX","type":"bar","marker":{"autocolorscale":false,"color":"rgba(248,99,222,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"TX","legendgroup":"TX","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[26],"y":[33.90625],"text":"reorder(State, -median_IBU): UT<br />median_IBU: 33.90625<br />State: UT","type":"bar","marker":{"autocolorscale":false,"color":"rgba(252,97,211,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"UT","legendgroup":"UT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0,"x":[7],"y":[41],"text":"reorder(State, -median_IBU): VA<br />median_IBU: 41.00000<br />State: VA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(255,97,199,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"VA","legendgroup":"VA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0,"x":[5],"y":[43.5],"text":"reorder(State, -median_IBU): VT<br />median_IBU: 43.50000<br />State: VT","type":"bar","marker":{"autocolorscale":false,"color":"rgba(255,98,186,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"VT","legendgroup":"VT","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.899999999999999,"base":0,"x":[20],"y":[35.5],"text":"reorder(State, -median_IBU): WA<br />median_IBU: 35.50000<br />State: WA","type":"bar","marker":{"autocolorscale":false,"color":"rgba(255,101,173,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"WA","legendgroup":"WA","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[47],"y":[24],"text":"reorder(State, -median_IBU): WI<br />median_IBU: 24.00000<br />State: WI","type":"bar","marker":{"autocolorscale":false,"color":"rgba(255,104,158,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"WI","legendgroup":"WI","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.9,"base":0,"x":[2],"y":[57.5],"text":"reorder(State, -median_IBU): WV<br />median_IBU: 57.50000<br />State: WV","type":"bar","marker":{"autocolorscale":false,"color":"rgba(255,109,143,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"WV","legendgroup":"WV","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":0.900000000000006,"base":0,"x":[50],"y":[22],"text":"reorder(State, -median_IBU): WY<br />median_IBU: 22.00000<br />State: WY","type":"bar","marker":{"autocolorscale":false,"color":"rgba(252,113,127,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"WY","legendgroup":"WY","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":43.7625570776256,"r":7.30593607305936,"b":44.8791666510281,"l":37.2602739726027},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"title":{"text":"Median Bitterness of Beers by State","font":{"color":"rgba(0,0,0,1)","family":"","size":17.5342465753425},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.4,51.6],"tickmode":"array","ticktext":["DE","WV","MN","MS","VT","IL","VA","CA","NV","NY","AL","ME","GA","AR","CO","CT","NE","OH","FL","WA","MT","OR","NJ","TN","NM","UT","AK","ID","TX","SC","ND","IN","KY","NC","PA","MA","MD","SD","MI","DC","LA","MO","OK","HI","IA","RI","WI","AZ","KS","WY","NH"],"tickvals":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51],"categoryorder":"array","categoryarray":["DE","WV","MN","MS","VT","IL","VA","CA","NV","NY","AL","ME","GA","AR","CO","CT","NE","OH","FL","WA","MT","OR","NJ","TN","NM","UT","AK","ID","TX","SC","ND","IN","KY","NC","PA","MA","MD","SD","MI","DC","LA","MO","OK","HI","IA","RI","WI","AZ","KS","WY","NH"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-65,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"State","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-2.99086378737542,62.8081395348837],"tickmode":"array","ticktext":["0","20","40","60"],"tickvals":[0,20,40,60],"categoryorder":"array","categoryarray":["0","20","40","60"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"Median IBU","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"y":0.913385826771654},"annotations":[{"text":"State","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"6d30435f3992":{"x":{},"y":{},"fill":{},"type":"bar"}},"cur_data":"6d30435f3992","visdat":{"6d30435f3992":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="highest-ibu-and-abv-beers" class="section level2">
+<h2>Highest IBU and ABV Beers</h2>
+<p>The tables below show the top 5 beers in our data set in terms of ABV and IBU. Two of the top 5 ABV beers are located in Boulder, CO but all five beers are a different style. The top 5 beers in terms of IBU are all a variation of an American IPA.</p>
+<pre class="r"><code>kable(head(beer_merged[order(-beer_merged$ABV),c(1,6,8,9,10,4,3)], n=5), caption = &quot;Top 5 ABV Beers&quot;) %&gt;%  
+  kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Top 5 ABV Beers
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+beer_name
+</th>
+<th style="text-align:left;">
+Style
+</th>
+<th style="text-align:left;">
+brewery_name
+</th>
+<th style="text-align:left;">
+City
+</th>
+<th style="text-align:left;">
+State
+</th>
+<th style="text-align:right;">
+IBU
+</th>
+<th style="text-align:right;">
+ABV
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2274
+</td>
+<td style="text-align:left;">
+Lee Hill Series Vol. 5 - Belgian Style Quadrupel Ale
+</td>
+<td style="text-align:left;">
+Quadrupel (Quad)
+</td>
+<td style="text-align:left;">
+Upslope Brewing Company
+</td>
+<td style="text-align:left;">
+Boulder
+</td>
+<td style="text-align:left;">
+CO
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+0.128
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+71
+</td>
+<td style="text-align:left;">
+London Balling
+</td>
+<td style="text-align:left;">
+English Barleywine
+</td>
+<td style="text-align:left;">
+Against the Grain Brewery
+</td>
+<td style="text-align:left;">
+Louisville
+</td>
+<td style="text-align:left;">
+KY
+</td>
+<td style="text-align:right;">
+80
+</td>
+<td style="text-align:right;">
+0.125
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2185
+</td>
+<td style="text-align:left;">
+Csar
+</td>
+<td style="text-align:left;">
+Russian Imperial Stout
+</td>
+<td style="text-align:left;">
+Tin Man Brewing Company
+</td>
+<td style="text-align:left;">
+Evansville
+</td>
+<td style="text-align:left;">
+IN
+</td>
+<td style="text-align:right;">
+90
+</td>
+<td style="text-align:right;">
+0.120
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2275
+</td>
+<td style="text-align:left;">
+Lee Hill Series Vol. 4 - Manhattan Style Rye Ale
+</td>
+<td style="text-align:left;">
+Rye Beer
+</td>
+<td style="text-align:left;">
+Upslope Brewing Company
+</td>
+<td style="text-align:left;">
+Boulder
+</td>
+<td style="text-align:left;">
+CO
+</td>
+<td style="text-align:right;">
+52
+</td>
+<td style="text-align:right;">
+0.104
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+1853
+</td>
+<td style="text-align:left;">
+4Beans
+</td>
+<td style="text-align:left;">
+Baltic Porter
+</td>
+<td style="text-align:left;">
+Sixpoint Craft Ales
+</td>
+<td style="text-align:left;">
+Brooklyn
+</td>
+<td style="text-align:left;">
+NY
+</td>
+<td style="text-align:right;">
+52
+</td>
+<td style="text-align:right;">
+0.100
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>kable(head(beer_merged[order(-beer_merged$IBU),c(1,6,8,9,10,4,3)], n=5),caption = &quot;Top 5 IBU Beers&quot;) %&gt;%  
+  kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Top 5 IBU Beers
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+beer_name
+</th>
+<th style="text-align:left;">
+Style
+</th>
+<th style="text-align:left;">
+brewery_name
+</th>
+<th style="text-align:left;">
+City
+</th>
+<th style="text-align:left;">
+State
+</th>
+<th style="text-align:right;">
+IBU
+</th>
+<th style="text-align:right;">
+ABV
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+148
+</td>
+<td style="text-align:left;">
+Bitter Bitch Imperial IPA
+</td>
+<td style="text-align:left;">
+American Double / Imperial IPA
+</td>
+<td style="text-align:left;">
+Astoria Brewing Company
+</td>
+<td style="text-align:left;">
+Astoria
+</td>
+<td style="text-align:left;">
+OR
+</td>
+<td style="text-align:right;">
+138
+</td>
+<td style="text-align:right;">
+0.082
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2386
+</td>
+<td style="text-align:left;">
+Troopers Alley IPA
+</td>
+<td style="text-align:left;">
+American IPA
+</td>
+<td style="text-align:left;">
+Wolf Hills Brewing Company
+</td>
+<td style="text-align:left;">
+Abingdon
+</td>
+<td style="text-align:left;">
+VA
+</td>
+<td style="text-align:right;">
+135
+</td>
+<td style="text-align:right;">
+0.059
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+526
+</td>
+<td style="text-align:left;">
+Dead-Eye DIPA
+</td>
+<td style="text-align:left;">
+American Double / Imperial IPA
+</td>
+<td style="text-align:left;">
+Cape Ann Brewing Company
+</td>
+<td style="text-align:left;">
+Gloucester
+</td>
+<td style="text-align:left;">
+MA
+</td>
+<td style="text-align:right;">
+130
+</td>
+<td style="text-align:right;">
+0.090
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+594
+</td>
+<td style="text-align:left;">
+Bay of Bengal Double IPA (2014)
+</td>
+<td style="text-align:left;">
+American Double / Imperial IPA
+</td>
+<td style="text-align:left;">
+Christian Moerlein Brewing Company
+</td>
+<td style="text-align:left;">
+Cincinnati
+</td>
+<td style="text-align:left;">
+OH
+</td>
+<td style="text-align:right;">
+126
+</td>
+<td style="text-align:right;">
+0.089
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2077
+</td>
+<td style="text-align:left;">
+Abrasive Ale
+</td>
+<td style="text-align:left;">
+American Double / Imperial IPA
+</td>
+<td style="text-align:left;">
+Surly Brewing Company
+</td>
+<td style="text-align:left;">
+Brooklyn Center
+</td>
+<td style="text-align:left;">
+MN
+</td>
+<td style="text-align:right;">
+120
+</td>
+<td style="text-align:right;">
+0.097
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="summary-and-distribution-of-abv-and-ibu" class="section level2">
+<h2>Summary and Distribution of ABV and IBU</h2>
+<p>The average ABV of all beers is 5.97% while the median is 5.64% indicating a slightly right-skewed distribution. The histogram below reflects this as well. Most beers appear to hover around the mean ABV with a few potential outliers with higher ABVs. IBU on the other hand has a more complex distribution that may be bi-modal seen by the two separate spikes. Our interpretation is that two types of consumers may exist in terms of IBU. That is, consumers who seek out bitter beers versus those who don’t. It’s important to note which type of consumer you are trying to market to when creating a new beer.</p>
+<pre class="r"><code>summary(beer_merged$ABV)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+## 0.02700 0.05000 0.05600 0.05974 0.06700 0.12800</code></pre>
+<pre class="r"><code>beer_merged %&gt;% ggplot(aes(x=ABV, color=&quot;Orange&quot;)) + 
+  geom_histogram(binwidth=0.0025) +
+  ggtitle(&quot;Distribution of ABV for All beers&quot;) +
+  theme(legend.position = &quot;none&quot;)</code></pre>
+<p><img src="project1_beer_analysis_files/figure-html/abv_stats-1.png" width="672" /></p>
+<pre class="r"><code>summary(beer_merged$IBU)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    0.00   21.78   33.81   40.27   59.50  138.00</code></pre>
+<pre class="r"><code>beer_merged %&gt;% ggplot(aes(x=IBU, color=&quot;white&quot;)) + 
+  geom_histogram(bins=25) +
+  ggtitle(&quot;Distribution of IBU for All beers&quot;) +
+  theme(legend.position = &quot;none&quot;)</code></pre>
+<p><img src="project1_beer_analysis_files/figure-html/abv_stats-2.png" width="672" /></p>
+</div>
+<div id="relationship-between-ibu-and-abv" class="section level2">
+<h2>Relationship between IBU and ABV</h2>
+<p>The scatter plot below shows a positive linear relationship between ABV and IBU for all beers. Our test results produce a correlation value of 0.58 on a scale of -1 to 1 which is statistically significantly different from zero (p value ~ 0). Furthermore, we are 95% confident that the true correlation value is between 0.55 and 0.61.</p>
+<pre class="r"><code>ggplot(beer_merged, aes(x=IBU, y= ABV)) +
+  geom_point(shape=1) + 
+  geom_smooth(method=lm) + # add linear regression line
+  ggtitle(&quot;Correlation between IBU and ABV&quot;) +
+  labs(x=&quot;IBU - Bitterness of the beer&quot;,y=&quot;ABV - Alcoholic content of the beer&quot;)</code></pre>
+<p><img src="project1_beer_analysis_files/figure-html/scatter-1.png" width="672" /></p>
+<pre class="r"><code># Pearson&#39;s product-moment correlation
+df&lt;-unlist(cor.test(beer_merged$ABV,beer_merged$IBU))
+data.frame(Correlation_Value = round(as.numeric(unname(df[4])),2), P_Value = round(as.numeric(unname(df[3])),2))</code></pre>
+<pre><code>##   Correlation_Value P_Value
+## 1              0.58       0</code></pre>
+</div>
+<div id="knn-classification-of-ipas-and-ales" class="section level2">
+<h2>KNN Classification of IPAs and Ales</h2>
+<p>ABV and IBU are defining characteristics of beer and its style. In this section, we will explore a classification model known as K-Nearest Neighbors (KNN) to predict which beers are IPAs or another type of Ale. The scatter plot below suggetss that a grouping of Ales and IPAs exists in terms of ABV and IBU.</p>
+<pre class="r"><code>beer_merged$beer_type &lt;- ifelse(grepl(&quot;\\bale\\b&quot;, beer_merged$Style, ignore.case = T), &quot;Other Ales&quot;,
+ifelse(grepl(&quot;\\bIPA\\b&quot;, beer_merged$Style, ignore.case = T ), &quot;IPA&quot;, &quot;Other&quot;))
+
+#Change BeerType to a factor and IBU/ABV to numeric
+beer_merged$beer_type = as.factor(beer_merged$beer_type)
+
+# When looking at the beers by ounces, it appears that IPAs have higher median ABV values than other Ales. 
+#Selecting for only IPAs and Other Ales.
+BrewPubIPAOther = beer_merged %&gt;% filter(!is.na(beer_type) &amp; !is.na(IBU) &amp;!is.na(ABV)) %&gt;%  
+  filter(beer_type == &quot;IPA&quot; | beer_type == &quot;Other Ales&quot;)
+BrewPubIPAOther = droplevels(BrewPubIPAOther, exclude = &quot;Other&quot;)
+BrewPubIPAOther %&gt;% ggplot(aes(x=IBU, ABV, color = beer_type)) + geom_point() + ggtitle(&quot;IBU vs ABV by Beer Type&quot;)</code></pre>
+<p><img src="project1_beer_analysis_files/figure-html/knn_scatter-1.png" width="672" /></p>
+<p>We will build a KNN model using ABV and IBU. The method of KNN looks at a specified number of beers, “k”, located near the beer of interest in terms of ABV and IBU so that those that are close in ABV and IBU will be grouped accordingly. The choice of “k” was determined by running our model 100 times and choosing the value with the best accuracy. The confusion matrix below represents the predictions by the KNN model as columns and the actual beer type as rows.</p>
+<pre class="r"><code># Split data into test/train and build KNN
+set.seed(1000)
+iterations = 100
+splitPerc = .70
+trainIndices = sample(1:dim(BrewPubIPAOther)[1],round(splitPerc * dim(BrewPubIPAOther)[1]))
+train = BrewPubIPAOther[trainIndices,]
+test = BrewPubIPAOther[-trainIndices,]
+
+# peform 100 iterations to find the best K value for KNN
+accs = data.frame(accuracy = numeric(iterations), k = numeric(iterations))
+for(i in 1:iterations)
+{
+    classifications = knn(train[,c(4,5)],test[,c(4,5)],train$beer_type, prob = TRUE, k = i)
+    table(test$beer_type,classifications)
+    CM = confusionMatrix(table(test$beer_type,classifications))
+  accs$accuracy[i] = CM$overall[1]
+  accs$k[i] = i
+}
+
+#plot used for reviewing K values. Max is chosen for final model
+#plot(accs$k,accs$accuracy, type = &quot;l&quot;, xlab = &quot;k&quot;, ylab=&quot;Accuracy&quot;)
+
+# Classify AlesIPAs with KNN; k=25 achieves the max accuracy
+classifications = knn(train[,c(4,5)],test[,c(4,5)],train$beer_type, prob = TRUE, k = accs$k[which.max(accs$accuracy)])
+
+CM = confusionMatrix(table(test$beer_type,classifications))
+
+knn_results&lt;-data.frame(Model=&quot;KNN for Ale/IPA&quot;, 
+           Accuracy=CM$overall[1], 
+           Sensitivity=CM$byClass[1], 
+           Specificity=CM$byClass[2])
+
+kable(table(test$beer_type,classifications),caption=&quot;Confusion Matrix for Classifying Beer Type (Columns are Predictions)&quot;) %&gt;% kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Confusion Matrix for Classifying Beer Type (Columns are Predictions)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+IPA
+</th>
+<th style="text-align:right;">
+Other Ales
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+IPA
+</td>
+<td style="text-align:right;">
+156
+</td>
+<td style="text-align:right;">
+20
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Other Ales
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+254
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>kable(knn_results) %&gt;% kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+Model
+</th>
+<th style="text-align:right;">
+Accuracy
+</th>
+<th style="text-align:right;">
+Sensitivity
+</th>
+<th style="text-align:right;">
+Specificity
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Accuracy
+</td>
+<td style="text-align:left;">
+KNN for Ale/IPA
+</td>
+<td style="text-align:right;">
+0.8913043
+</td>
+<td style="text-align:right;">
+0.8387097
+</td>
+<td style="text-align:right;">
+0.9270073
+</td>
+</tr>
+</tbody>
+</table>
+<p>The overall accuracy of the mode, that is the percentage of correct matches, is 89% which is fairly successful. It is clear that IPAs can be accurately distinguished from other types of Ales in terms of ABV and IBU. More specifically, IPAs tend to be more bitter and more alcoholic than their Ale counterparts. IN the next section, we will explore further classification of beer styles beyond IPAs.</p>
+</div>
+<div id="knn-classification-of-top-5-beer-styles" class="section level2">
+<h2>KNN Classification of Top 5 Beer Styles</h2>
+<p>We have selected the top 5 most common styles of beers in our dataset seen below. In essence, these are the most popularly brewed beers and we wish to determine if it’s possible to classify these beers by their style using ABV and IBU similar to the previous section. The scatter plot below suggests some obvious grouping of IPA, Imperial IPA, and Pale Ales, but beyond those styles, there is quite a bit of overlap that may make it difficult to classify.</p>
+<pre class="r"><code>beers_topfive&lt;-beer_merged %&gt;%
+  subset(Style %in% c(&quot;American IPA&quot;, 
+                      &quot;American Pale Ale (APA)&quot;,
+                      &quot;American Amber / Red Ale&quot;,
+                      &quot;American Blonde Ale&quot;,
+                      &quot;American Double / Imperial IPA&quot; )) 
+
+#Change BeerType to a factor and IBU/ABV to numeric
+beers_topfive$Style = as.factor(beers_topfive$Style)
+
+# table for top 5 most common beers
+beers_topfive %&gt;% group_by(Style) %&gt;%
+  summarise(Count = n()) %&gt;%
+  arrange(-Count) %&gt;%
+  kable(caption = &quot;Top 5 Most Common Beer Styles&quot;) %&gt;%
+  kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Top 5 Most Common Beer Styles
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Style
+</th>
+<th style="text-align:right;">
+Count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+American IPA
+</td>
+<td style="text-align:right;">
+424
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Pale Ale (APA)
+</td>
+<td style="text-align:right;">
+245
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Amber / Red Ale
+</td>
+<td style="text-align:right;">
+133
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Blonde Ale
+</td>
+<td style="text-align:right;">
+108
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Double / Imperial IPA
+</td>
+<td style="text-align:right;">
+105
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Create scatter plot for top 5 beers
+beers_topfive %&gt;% ggplot(aes(x=IBU, ABV, color = Style)) + 
+  geom_point() + 
+  ggtitle(&quot;ABV vs IBU: Top 5 Most Common Beer Styles&quot;) </code></pre>
+<p><img src="project1_beer_analysis_files/figure-html/knn_scatter2-1.png" width="672" /></p>
+<p>Again we will use a KNN model with the value of K selected by repeating the process 100 times and finding the k value that achieves the best accuracy. The results of the model are seen below.</p>
+<pre class="r"><code># Split data into test/train and build KNN
+set.seed(1000)
+iterations = 100
+splitPerc = .70
+trainIndices = sample(1:dim(beers_topfive)[1],round(splitPerc * dim(beers_topfive)[1]))
+train = beers_topfive[trainIndices,]
+test = beers_topfive[-trainIndices,]
+
+accs = data.frame(accuracy = numeric(iterations), k = numeric(iterations))
+for(i in 1:iterations)
+{
+    classifications = knn(train[,c(4,5)],test[,c(4,5)],train$Style, prob = TRUE, k = i)
+    table(test$Style,classifications)
+    CM = confusionMatrix(table(test$Style,classifications))
+  accs$accuracy[i] = CM$overall[1]
+  accs$k[i] = i
+}
+
+#plot used to review best K values
+#plot(accs$k,accs$accuracy, type = &quot;l&quot;, xlab = &quot;k&quot;, ylab=&quot;Accuracy&quot;)
+
+# Classify Top 5 beers in test set with KNN; k=5 achieves the max accuracy
+classifications = knn(train[,c(4,5)],test[,c(4,5)],train$Style, prob = TRUE, k = accs$k[which.max(accs$accuracy)])
+
+CM = confusionMatrix(table(test$Style,classifications))
+
+knn_results&lt;-data.frame(
+          BeerStyle=c( &quot;American Amber / Red Ale&quot;,
+                       &quot;American Blonde Ale&quot;,
+                       &quot;American Double / Imperial IPA&quot;,
+                       &quot;American IPA&quot;, 
+                       &quot;American Pale Ale (APA)&quot;),
+           Balanced_Accuracy=c(CM$byClass[1,11], CM$byClass[2,11], CM$byClass[3,11], CM$byClass[4,11], CM$byClass[5,11])
+        )
+
+kable(table(test$Style,classifications), caption=&quot;Confusion Matrix for Classifying Beer Style (Columns are Predictions)&quot;) %&gt;% kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Confusion Matrix for Classifying Beer Style (Columns are Predictions)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+American Amber / Red Ale
+</th>
+<th style="text-align:right;">
+American Blonde Ale
+</th>
+<th style="text-align:right;">
+American Double / Imperial IPA
+</th>
+<th style="text-align:right;">
+American IPA
+</th>
+<th style="text-align:right;">
+American Pale Ale (APA)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+American Amber / Red Ale
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Blonde Ale
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Double / Imperial IPA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American IPA
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+102
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Pale Ale (APA)
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+57
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>kable(knn_results) %&gt;% kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+BeerStyle
+</th>
+<th style="text-align:right;">
+Balanced_Accuracy
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+American Amber / Red Ale
+</td>
+<td style="text-align:right;">
+0.6888431
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Blonde Ale
+</td>
+<td style="text-align:right;">
+0.7812025
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Double / Imperial IPA
+</td>
+<td style="text-align:right;">
+0.8142501
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American IPA
+</td>
+<td style="text-align:right;">
+0.8391155
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Pale Ale (APA)
+</td>
+<td style="text-align:right;">
+0.8140278
+</td>
+</tr>
+</tbody>
+</table>
+<p>Our confusion matrix now contains 5 possible styles to choose from for each beer where the columns represent the Style chosen by the model, and the rows are the actual Styles taken from the data set. Finally, the results are summarised using a Balanced Accuracy measurement for each Style to show how well our model does at classifying each Style. As we expected from the visual inspection of the Scatter plot, the model is more capable of classifying American IPA, American Imperial IPA, and American Pale Ales than the rest due to the significant overlapping that occurs in lower ABV and IBU beers. Ultimately, beers such as IPAs and Double IPAs are characterized by their IBU and ABV content.</p>
+</div>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>This report has presented our findings from an exploratory dat analysis of various beers and breweries across the United States. We focused on insights using ABV and IBU, their relationship, and classifications. Some of our key takeaways are shown below. &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
+<ul>
+<li><p>No obvious regional patterns in the US of brewery locations</p></li>
+<li><p>IBU is not regularly reported and must be inferred from Styles or other methods when doing analysis.</p></li>
+<li><p>There is a Positive linear relationship between IBU and ABV</p></li>
+<li><p>A Bi-modal distribution of IBU may indicate two different consumer markets</p></li>
+<li><p>Not all styles of beer can be accurately classified by IBU/ABV</p></li>
+</ul>
+<p>Finally, we would like to mention a few areas of further research that could help gain more insight into some of of our findings</p>
+<ul>
+<li><p>More advanced methods for determining IBU when they are not reported b the Brewery.</p></li>
+<li><p>Distribution/Sales data to determine where the beer is being shipped</p></li>
+<li><p>Demographics and economic data to gain insight into the culture of states that drive beer sales and production.</p></li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
