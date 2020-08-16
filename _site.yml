@@ -7,4 +7,4 @@ navbar:
     - text: "Beer"
       href: project1_beer_analysis.html
     - text: "Attrition"
-      href: attrition.html
+      href: Attrition.html
