@@ -1,3 +1,4 @@
+theme: jekyll-theme-slate
 name: "my-website"
 navbar:
   title: "My Website"
